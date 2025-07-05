@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt Generator - Create Effective Prompts</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --content: #4cc9f0;
+            --code: #7209b7;
+            --data: #f8961e;
+            --design: #f72585;
+            --business: #2a9d8f;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #1d3557, #1a2a6c);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #4cc9f0, #f72585);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+            color: #e9ecef;
+        }
+        
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .card i {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .card[data-industry="content"] i { color: var(--content); }
+        .card[data-industry="code"] i { color: var(--code); }
+        .card[data-industry="data"] i { color: var(--data); }
+        .card[data-industry="design"] i { color: var(--design); }
+        .card[data-industry="business"] i { color: var(--business); }
+        
+        .card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        .card p {
+            color: #ced4da;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .card .example-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .card .example-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .form-container {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+        
+        .form-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .form-header h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .form-container[data-industry="content"] .form-header h2 { color: var(--content); }
+        .form-container[data-industry="code"] .form-header h2 { color: var(--code); }
+        .form-container[data-industry="data"] .form-header h2 { color: var(--data); }
+        .form-container[data-industry="design"] .form-header h2 { color: var(--design); }
+        .form-container[data-industry="business"] .form-header h2 { color: var(--business); }
+        
+        .question-group {
+            margin-bottom: 25px;
+        }
+        
+        .question-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: 500;
+        }
+        
+        .question-group input,
+        .question-group textarea,
+        .question-group select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .question-group input:focus,
+        .question-group textarea:focus,
+        .question-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.3);
+        }
+        
+        .question-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 14px 30px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-generate {
+            background: linear-gradient(to right, var(--accent), var(--primary));
+            color: white;
+        }
+        
+        .btn-generate:hover {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .result-container {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+        
+        .result-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .result-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .result-header h2 {
+            font-size: 2rem;
+            color: var(--success);
+            margin-bottom: 10px;
+        }
+        
+        #generated-prompt {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            color: #fff;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        
+        .copy-btn {
+            display: block;
+            margin: 20px auto 0;
+            background: linear-gradient(to right, #7209b7, #f72585);
+            color: white;
+        }
+        
+        .copy-btn:hover {
+            background: linear-gradient(to right, #f72585, #7209b7);
+            transform: translateY(-3px);
+        }
+        
+        /* Examples Section */
+        .examples-section {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .examples-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .examples-header h2 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #4cc9f0, #f72585);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .examples-header p {
+            color: #ced4da;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .examples-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .example-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .example-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .example-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .example-card h3 i {
+            font-size: 1.8rem;
+        }
+        
+        .example-card.content h3 i { color: var(--content); }
+        .example-card.code h3 i { color: var(--code); }
+        .example-card.data h3 i { color: var(--data); }
+        .example-card.design h3 i { color: var(--design); }
+        .example-card.business h3 i { color: var(--business); }
+        
+        .example-card ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .example-card li {
+            margin-bottom: 8px;
+            color: #ced4da;
+        }
+        
+        .example-card .prompt-preview {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 0.9rem;
+            color: #a3d9ff;
+            border-left: 3px solid;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        .content .prompt-preview { border-color: var(--content); }
+        .code .prompt-preview { border-color: var(--code); }
+        .data .prompt-preview { border-color: var(--data); }
+        .design .prompt-preview { border-color: var(--design); }
+        .business .prompt-preview { border-color: var(--business); }
+        
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+            color: #adb5bd;
+            font-size: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .examples-header h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-robot"></i> AI Prompt Generator</h1>
+            <p>Answer 5 simple questions to receive an optimized AI prompt tailored to your needs. Select your industry below to get started!</p>
+        </header>
+        
+        <div class="card-container" id="industrySelection">
+            <div class="card" data-industry="content">
+                <i class="fas fa-file-alt"></i>
+                <h3>📝 Content</h3>
+                <p>Write 2000-word SEO blog + Outline</p>
+                <div class="example-btn">See Example</div>
+            </div>
+            
+            <div class="card" data-industry="code">
+                <i class="fas fa-code"></i>
+                <h3>💻 Code</h3>
+                <p>Debug Python code + Explain errors</p>
+                <div class="example-btn">See Example</div>
+            </div>
+            
+            <div class="card" data-industry="data">
+                <i class="fas fa-chart-bar"></i>
+                <h3>📊 Data</h3>
+                <p>Analyze CSV + Create Python charts</p>
+                <div class="example-btn">See Example</div>
+            </div>
+            
+            <div class="card" data-industry="design">
+                <i class="fas fa-palette"></i>
+                <h3>🎨 Design</h3>
+                <p>Create high-quality Midjourney 4K prompts</p>
+                <div class="example-btn">See Example</div>
+            </div>
+            
+            <div class="card" data-industry="business">
+                <i class="fas fa-briefcase"></i>
+                <h3>💼 Business</h3>
+                <p>Write client proposals + PPT slides</p>
+                <div class="example-btn">See Example</div>
+            </div>
+        </div>
+        
+        <div class="form-container" id="questionForm" data-industry="content">
+            <div class="form-header">
+                <h2 id="formTitle">Create Prompt for Content Industry</h2>
+                <p>Please answer the following questions to create the best prompt</p>
+            </div>
+            
+            <div class="question-group">
+                <label for="role">1. Role:</label>
+                <input type="text" id="role" placeholder="Example: SEO Specialist, Technical Writer...">
+            </div>
+            
+            <div class="question-group">
+                <label for="context">2. Context:</label>
+                <textarea id="context" placeholder="Example: Writing about digital marketing for SMEs..."></textarea>
+            </div>
+            
+            <div class="question-group">
+                <label for="action">3. Action:</label>
+                <textarea id="action" placeholder="Example: Write a 2000-word blog with detailed outline..."></textarea>
+            </div>
+            
+            <div class="question-group">
+                <label for="style">4. Style:</label>
+                <input type="text" id="style" placeholder="Example: Professional yet friendly, with practical examples...">
+            </div>
+            
+            <div class="question-group">
+                <label for="format">5. Format:</label>
+                <input type="text" id="format" placeholder="Example: Markdown with headings, bullet points...">
+            </div>
+            
+            <div class="buttons">
+                <button class="btn-back" id="backButton"><i class="fas fa-arrow-left"></i> Back</button>
+                <button class="btn-generate" id="generateButton"><i class="fas fa-magic"></i> Generate Prompt</button>
+            </div>
+        </div>
+        
+        <div class="result-container" id="resultContainer">
+            <div class="result-header">
+                <h2>Your Prompt is Ready!</h2>
+                <p>Copy the prompt below and use it with your AI</p>
+            </div>
+            
+            <div id="generated-prompt">Prompt will appear here...</div>
+            <button class="copy-btn" id="copyButton"><i class="fas fa-copy"></i> Copy Prompt</button>
+            <button class="btn-back" id="newPromptButton" style="margin-top: 15px;"><i class="fas fa-redo"></i> Create New Prompt</button>
+        </div>
+        
+        <!-- Examples Section -->
+        <div class="examples-section">
+            <div class="examples-header">
+                <h2><i class="fas fa-lightbulb"></i> Detailed Prompt Examples</h2>
+                <p>See how professionals craft effective AI prompts for different industries</p>
+            </div>
+            
+            <div class="examples-container">
+                <div class="example-card content">
+                    <h3><i class="fas fa-file-alt"></i> Content Creation</h3>
+                    <ul>
+                        <li><strong>Role:</strong> Sustainable Gardening Expert</li>
+                        <li><strong>Context:</strong> Urban gardening with limited space</li>
+                        <li><strong>Action:</strong> Write a comprehensive guide with practical tips</li>
+                        <li><strong>Style:</strong> Friendly and informative with real-life examples</li>
+                        <li><strong>Format:</strong> Markdown with H2 headings and bullet points</li>
+                    </ul>
+                    <div class="prompt-preview">You are a Sustainable Gardening Expert. Write a 2000-word comprehensive guide about urban gardening for people with limited space. Provide practical tips for container gardening, vertical gardens, and selecting appropriate plants. Include real-life examples and case studies. Format in Markdown with H2 headings for each section and bullet points for key tips. Optimize for SEO with keywords like "urban gardening," "small space gardening," and "container gardening."</div>
+                </div>
+                
+                <div class="example-card code">
+                    <h3><i class="fas fa-code"></i> Code Debugging</h3>
+                    <ul>
+                        <li><strong>Role:</strong> Senior Python Developer</li>
+                        <li><strong>Context:</strong> Flask web application</li>
+                        <li><strong>Action:</strong> Debug database connection issue</li>
+                        <li><strong>Style:</strong> Step-by-step explanation</li>
+                        <li><strong>Format:</strong> Code comments + fixed code</li>
+                    </ul>
+                    <div class="prompt-preview">You are a Senior Python Developer. Debug the following Flask application code that fails to connect to the PostgreSQL database. The error message is "OperationalError: could not connect to server". Explain each step of your debugging process and provide the fixed code with comments explaining the changes. Also suggest best practices to avoid similar issues in the future.</div>
+                </div>
+                
+                <div class="example-card data">
+                    <h3><i class="fas fa-chart-bar"></i> Data Analysis</h3>
+                    <ul>
+                        <li><strong>Role:</strong> Data Analyst</li>
+                        <li><strong>Context:</strong> E-commerce sales data</li>
+                        <li><strong>Action:</strong> Analyze monthly sales trends</li>
+                        <li><strong>Style:</strong> Professional report with key insights</li>
+                        <li><strong>Format:</strong> Python code with visualizations</li>
+                    </ul>
+                    <div class="prompt-preview">You are a Data Analyst. Analyze the provided e-commerce sales dataset (CSV format). Identify monthly sales trends, top-performing products, and regional variations. Create visualizations including a line chart for monthly sales, a bar chart for top products, and a heatmap for regional performance. Use Python with Pandas for analysis and Matplotlib/Seaborn for visualizations. Provide the complete code and a summary of key insights.</div>
+                </div>
+                
+                <div class="example-card design">
+                    <h3><i class="fas fa-palette"></i> AI Image Generation</h3>
+                    <ul>
+                        <li><strong>Role:</strong> Digital Artist</li>
+                        <li><strong>Context:</strong> Fantasy book cover</li>
+                        <li><strong>Action:</strong> Create a Midjourney prompt</li>
+                        <li><strong>Style:</strong> Epic fantasy with realistic details</li>
+                        <li><strong>Format:</strong> Complete prompt with parameters</li>
+                    </ul>
+                    <div class="prompt-preview">You are a Digital Artist specializing in fantasy art. Create a Midjourney prompt for a book cover depicting a fierce female warrior standing on a cliff overlooking a mystical valley with floating islands. She wears intricate armor and holds a glowing sword. The style should be epic fantasy with hyperrealistic details, dramatic lighting, and vibrant colors. Include parameters for aspect ratio 16:9, version 5.2, and style raw. Ensure the prompt is optimized for 4K resolution.</div>
+                </div>
+                
+                <div class="example-card business">
+                    <h3><i class="fas fa-briefcase"></i> Business Proposal</h3>
+                    <ul>
+                        <li><strong>Role:</strong> Business Consultant</li>
+                        <li><strong>Context:</strong> Software implementation for school</li>
+                        <li><strong>Action:</strong> Create proposal and PPT slides</li>
+                        <li><strong>Style:</strong> Professional and persuasive</li>
+                        <li><strong>Format:</strong> Structured proposal with visuals</li>
+                    </ul>
+                    <div class="prompt-preview">You are a Business Consultant. Create a professional proposal and PowerPoint presentation for implementing a new Learning Management System at Lincoln High School. The proposal should include: executive summary, needs assessment, proposed solution (EdTech Pro LMS), implementation timeline, cost breakdown, and expected outcomes. Create 12 slides covering these sections with appropriate visuals. Emphasize benefits like improved student engagement and streamlined administration. Use a clean, modern design with the school's colors (blue and gold).</div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 AI Prompt Generator | Create effective AI prompts in 60 seconds</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Store industry-specific questions
+        const industryQuestions = {
+            content: {
+                title: "Content Industry",
+                questions: [
+                    "1. Role:",
+                    "2. Context:",
+                    "3. Action:",
+                    "4. Style:",
+                    "5. Format:"
+                ],
+                placeholders: [
+                    "Example: SEO Specialist, Technical Writer...",
+                    "Example: Writing about digital marketing for SMEs...",
+                    "Example: Write a 2000-word blog with detailed outline...",
+                    "Example: Professional yet friendly, with practical examples...",
+                    "Example: Markdown with headings, bullet points..."
+                ]
+            },
+            code: {
+                title: "Code Industry",
+                questions: [
+                    "1. Role:",
+                    "2. Programming Language:",
+                    "3. Error/Problem Description:",
+                    "4. Code to Debug:",
+                    "5. Output Requirements:"
+                ],
+                placeholders: [
+                    "Example: Python Expert, Software Engineer...",
+                    "Example: Python, JavaScript, C++...",
+                    "Example: Database connection error, function returns wrong result...",
+                    "Example: Paste your code here...",
+                    "Example: Explain error, suggest fix, rewrite code..."
+                ]
+            },
+            data: {
+                title: "Data Industry",
+                questions: [
+                    "1. Role:",
+                    "2. Analysis Goal:",
+                    "3. Data Structure:",
+                    "4. Desired Chart Type:",
+                    "5. Libraries to Use:"
+                ],
+                placeholders: [
+                    "Example: Data Analyst, Data Scientist...",
+                    "Example: Analyze sales trends, predict revenue...",
+                    "Example: CSV file with columns: Date, Product, Sales...",
+                    "Example: Line chart, bar chart, pie chart, scatter plot...",
+                    "Example: Pandas, Matplotlib, Seaborn..."
+                ]
+            },
+            design: {
+                title: "Design Industry",
+                questions: [
+                    "1. Role:",
+                    "2. Theme/Content:",
+                    "3. Artistic Style:",
+                    "4. Special Elements:",
+                    "5. Aspect Ratio:"
+                ],
+                placeholders: [
+                    "Example: Digital Artist, Graphic Designer...",
+                    "Example: Futuristic city, enchanted forest, portrait...",
+                    "Example: Minimalist, cyberpunk, anime style...",
+                    "Example: Neon lighting, smoke effects, 4K details...",
+                    "Example: 16:9, 1:1, 9:16..."
+                ]
+            },
+            business: {
+                title: "Business Industry",
+                questions: [
+                    "1. Role:",
+                    "2. Proposal Type:",
+                    "3. Client Information:",
+                    "4. Proposed Solution:",
+                    "5. PPT Slide Requirements:"
+                ],
+                placeholders: [
+                    "Example: Business Consultant, Sales Director...",
+                    "Example: Software project, marketing campaign...",
+                    "Example: Medium-sized enterprise in education...",
+                    "Example: Learning management system, ad campaign...",
+                    "Example: 10 slides including overview, solution, budget..."
+                ]
+            }
+        };
+
+        // Variable to store current industry
+        let currentIndustry = null;
+
+        // DOM Elements
+        const industrySelection = document.getElementById('industrySelection');
+        const questionForm = document.getElementById('questionForm');
+        const resultContainer = document.getElementById('resultContainer');
+        const formTitle = document.getElementById('formTitle');
+        const generateButton = document.getElementById('generateButton');
+        const backButton = document.getElementById('backButton');
+        const copyButton = document.getElementById('copyButton');
+        const newPromptButton = document.getElementById('newPromptButton');
+        const generatedPrompt = document.getElementById('generated-prompt');
+
+        // Handle industry selection
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                // Check if the click was on the example button
+                if (e.target.classList.contains('example-btn')) {
+                    // For simplicity, we'll just scroll to the examples section
+                    document.querySelector('.examples-section').scrollIntoView({ 
+                        behavior: 'smooth' 
+                    });
+                    return;
+                }
+                
+                const industry = card.getAttribute('data-industry');
+                currentIndustry = industry;
+                
+                // Update form data attribute for styling
+                questionForm.setAttribute('data-industry', industry);
+                
+                // Update form title
+                formTitle.textContent = `Create Prompt for ${industryQuestions[industry].title}`;
+                
+                // Update questions and placeholders
+                const questions = industryQuestions[industry].questions;
+                const placeholders = industryQuestions[industry].placeholders;
+                
+                const questionLabels = questionForm.querySelectorAll('.question-group label');
+                const questionInputs = questionForm.querySelectorAll('.question-group input, .question-group textarea');
+                
+                for (let i = 0; i < 5; i++) {
+                    questionLabels[i].textContent = questions[i];
+                    
+                    if (questionInputs[i].tagName === 'TEXTAREA') {
+                        questionInputs[i].placeholder = placeholders[i];
+                    } else {
+                        questionInputs[i].placeholder = placeholders[i];
+                    }
+                }
+                
+                // Show form and hide industry selection
+                industrySelection.style.display = 'none';
+                questionForm.classList.add('active');
+                resultContainer.classList.remove('active');
+            });
+        });
+
+        // Handle Back button
+        backButton.addEventListener('click', () => {
+            questionForm.classList.remove('active');
+            industrySelection.style.display = 'grid';
+            resultContainer.classList.remove('active');
+        });
+
+        // Handle Generate Prompt button
+        generateButton.addEventListener('click', () => {
+            // Get form data
+            const role = document.getElementById('role').value;
+            const context = document.getElementById('context').value;
+            const action = document.getElementById('action').value;
+            const style = document.getElementById('style').value;
+            const format = document.getElementById('format').value;
+            
+            // Create prompt based on selected industry
+            let prompt = "";
+            
+            switch(currentIndustry) {
+                case 'content':
+                    prompt = `You are ${role || "an SEO content specialist"}.
+Context: ${context || "writing high-quality blog content"}.
+Please ${action || "write a 2000-word blog on the provided topic"}.
+Style: ${style || "professional, engaging, with illustrative examples"}.
+Format: ${format || "Markdown with detailed outline, H2/H3 headings, bullet points"}.
+Optimize for SEO with relevant keywords.`;
+                    break;
+                    
+                case 'code':
+                    prompt = `You are ${role || "an experienced software engineer"}.
+Context: ${context || "debugging and explaining programming code"}.
+Please ${action || "analyze the provided code, identify errors, and propose solutions"}.
+Style: ${style || "technical, clear, with step-by-step explanations"}.
+Format: ${format || "properly formatted code, error explanation, solution proposal"}.
+Provide corrected code and explain the changes made.`;
+                    break;
+                    
+                case 'data':
+                    prompt = `You are ${role || "a data analyst"}.
+Context: ${context || "analyzing datasets and visualizing results"}.
+Please ${action || "perform analysis on the provided dataset and create appropriate charts"}.
+Style: ${style || "professional, focused on key insights"}.
+Format: ${format || "analysis report with illustrative charts"}.
+Use Python with Pandas and Matplotlib/Seaborn libraries.`;
+                    break;
+                    
+                case 'design':
+                    prompt = `You are ${role || "a professional AI artist"}.
+Context: ${context || "creating high-quality images with Midjourney"}.
+Please ${action || "create a Midjourney prompt for 4K high-quality images"}.
+Style: ${style || "digital art, high detail, beautiful composition"}.
+Format: ${format || "complete Midjourney prompt with technical specifications"}.
+Include parameters like --ar (aspect ratio) and --v (version).`;
+                    break;
+                    
+                case 'business':
+                    prompt = `You are ${role || "a business consultant"}.
+Context: ${context || "preparing a proposal for a client"}.
+Please ${action || "create a professional proposal and presentation slides"}.
+Style: ${style || "persuasive, professional, focused on client value"}.
+Format: ${format || "proposal with clear structure and PowerPoint slides"}.
+Include sections: Overview, Solution, Benefits, Budget, Implementation Plan.`;
+                    break;
+            }
+            
+            // Display prompt
+            generatedPrompt.textContent = prompt;
+            
+            // Show results and hide form
+            questionForm.classList.remove('active');
+            resultContainer.classList.add('active');
+            
+            // Scroll to results
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Handle Copy button
+        copyButton.addEventListener('click', () => {
+            const textArea = document.createElement('textarea');
+            textArea.value = generatedPrompt.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            // Copy confirmation effect
+            const originalText = copyButton.innerHTML;
+            copyButton.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                copyButton.innerHTML = originalText;
+            }, 2000);
+        });
+
+        // Handle New Prompt button
+        newPromptButton.addEventListener('click', () => {
+            resultContainer.classList.remove('active');
+            questionForm.classList.add('active');
+            
+            // Reset form
+            document.getElementById('role').value = '';
+            document.getElementById('context').value = '';
+            document.getElementById('action').value = '';
+            document.getElementById('style').value = '';
+            document.getElementById('format').value = '';
+            
+            // Scroll to form
+            questionForm.scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
